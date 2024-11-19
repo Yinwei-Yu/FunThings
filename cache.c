@@ -14,7 +14,7 @@ typedef struct
 
 Block *cache[cache_size / BS];
 
-//check if the pointer is in the cache
+// check if the pointer is in the cache
 bool inCache(char *p)
 {
   for (int i = 0; i < cache_size / BS; i++)
@@ -24,7 +24,7 @@ bool inCache(char *p)
   return 0;
 }
 
-//find latest and least used block
+// find latest and least used block
 int maxTime()
 {
   int block_num = 0;
@@ -35,7 +35,7 @@ int maxTime()
   return block_num;
 }
 
-//update time
+// update time
 void timeSet(int block_num)
 {
   cache[block_num]->time = 0;
@@ -44,7 +44,7 @@ void timeSet(int block_num)
       cache[i]->time++;
 }
 
-//find which block the pointer is in
+// find which block the pointer is in
 int where(char *p)
 {
   for (int i = 0; i < cache_size / BS; i++)
@@ -56,13 +56,13 @@ int where(char *p)
   return -1;
 }
 
-void normal_add(char A[size][size], char B[size][size]);
-void bench_block_adder(char A[size][size], char B[size][size]);
+void normal_add(char (*A)[size], char (*B)[size]);
+void bench_block_adder(char (*A)[size], char (*B)[size]);
 void help();
 int main(int argc, char *argv[])
 {
-  int opt;
-  while ((opt=getopt(argc, argv, "hc:b:s:")) != -1)
+  int opt = -1;
+  while ((opt = getopt(argc, argv, "hc:b:s:")) != -1)
   {
     switch (opt)
     {
@@ -70,22 +70,15 @@ int main(int argc, char *argv[])
       help();
       return 0;
       break;
-    case 'c':
-      break;
-    case 'b':
-      
-      break;
-    case 's':
-      
-      break;
     default:
-      help();
+      fprintf(stderr, "Use -h for help\n");
       break;
     }
   }
+  if (opt == -1)
+    printf("Use -h for help\n");
 
-
-  //initial A and B
+  // initial A and B
   char A[size][size];
   char B[size][size];
   for (int i = 1; i <= size; i++)
@@ -110,15 +103,13 @@ void help()
   printf("for(int i=0;i<size;i++)\n");
   printf("  for (int j = 0; j < size; j++)\n");
   printf("    A[i][j]+=B[j][i];\n");
-  printf("Usage: ./cache [-h-c-b-s]\n");
-  printf("use -h for help\n");
-  printf("use -c x for cache size where `x` is cache size you like\n");
-  printf("use -b x for block size where `x` is block size you like\n");
-  printf("use -s x for matrix size where `x` is matrix`s line size you like\n");
+  printf("Usage: ./cache [-h]\n");
+  printf("Use -h for help\n");
+  printf("You can manually change #define BS,size and block size in the to change block size ,matrix`s line size and cache size,sorry for not making it by command line args:(\n");
   return;
 }
 
-//access hit or miss
+// access hit or miss
 void my_access(char (*A)[size], int *miss, int *hit, int i, int j)
 {
   if (!inCache(&A[i][j]))

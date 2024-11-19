@@ -1,10 +1,17 @@
 all: cache
 
+CC=gcc
+CFALGS=-g -Wall
+
+b=4
+s=8
+c=32
+
 cache: cache.o
-	gcc -g -o cache cache.c
+	$(CC) $(CFALGS) -o cache cache.c
 
 cache.o: cache.c
-	gcc -c -o cache.o cache.c
+	$(CC) -c -o cache.o cache.c
 
 clean:
 	rm -f cache cache.o
