@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #define BS 4
 #define size 8
 #define cache_size 32
@@ -57,9 +58,32 @@ int where(char *p)
 
 void normal_add(char A[size][size], char B[size][size]);
 void bench_block_adder(char A[size][size], char B[size][size]);
-
-int main(unsigned argc, char *argv[])
+void help();
+int main(int argc, char *argv[])
 {
+  int opt;
+  while ((opt=getopt(argc, argv, "hc:b:s:")) != -1)
+  {
+    switch (opt)
+    {
+    case 'h':
+      help();
+      return 0;
+      break;
+    case 'c':
+      break;
+    case 'b':
+      
+      break;
+    case 's':
+      
+      break;
+    default:
+      help();
+      break;
+    }
+  }
+
 
   //initial A and B
   char A[size][size];
@@ -80,8 +104,22 @@ int main(unsigned argc, char *argv[])
   return 0;
 }
 
+void help()
+{
+  printf("This is a simple program to check how many miss and hit is there for add two matrix like this\n");
+  printf("for(int i=0;i<size;i++)\n");
+  printf("  for (int j = 0; j < size; j++)\n");
+  printf("    A[i][j]+=B[j][i];\n");
+  printf("Usage: ./cache [-h-c-b-s]\n");
+  printf("use -h for help\n");
+  printf("use -c x for cache size where `x` is cache size you like\n");
+  printf("use -b x for block size where `x` is block size you like\n");
+  printf("use -s x for matrix size where `x` is matrix`s line size you like\n");
+  return;
+}
+
 //access hit or miss
-void access(char (*A)[size], int *miss, int *hit, int i, int j)
+void my_access(char (*A)[size], int *miss, int *hit, int i, int j)
 {
   if (!inCache(&A[i][j]))
   {
@@ -112,8 +150,8 @@ void normal_add(char (*A)[size], char (*B)[size])
   for (int i = 0; i < size; i++)
     for (int j = 0; j < size; j++)
     {
-      access(A, &miss, &hit, i, j);
-      access(B, &miss, &hit, j, i);
+      my_access(A, &miss, &hit, i, j);
+      my_access(B, &miss, &hit, j, i);
     }
   for (int i = 0; i < cache_size / BS; i++)
     free(cache[i]);
@@ -137,8 +175,8 @@ void bench_block_adder(char (*A)[size], char (*B)[size])
       for (int i = ii; i < ii + block_size; i++)
         for (int j = jj; j < jj + block_size; j++)
         {
-          access(A, &miss, &hit, i, j);
-          access(B, &miss, &hit, j, i);
+          my_access(A, &miss, &hit, i, j);
+          my_access(B, &miss, &hit, j, i);
         }
   for (int i = 0; i < cache_size / BS; i++)
     free(cache[i]);
