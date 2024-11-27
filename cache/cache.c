@@ -160,7 +160,7 @@ void bench_block_adder(char (*A)[size], char (*B)[size])
   }
   int miss = 0;
   int hit = 0;
-  int block_size = 2;
+  int block_size = 4;
   for (int ii = 0; ii < size; ii += block_size)
     for (int jj = 0; jj < size; jj += block_size)
       for (int i = ii; i < ii + block_size; i++)
