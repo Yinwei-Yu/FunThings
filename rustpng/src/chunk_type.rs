@@ -2,7 +2,7 @@ use core::fmt;
 use std::fmt::Display;
 use std::str::FromStr;
 
-#[derive(Eq,PartialEq,Debug)]
+#[derive(Eq, PartialEq, Debug)]
 struct ChunkType {
     ancillary: u8,    // 大写关键块,小写辅助块
     private: u8,      //大写公共,小写私有
@@ -14,6 +14,9 @@ struct ChunkType {
 impl TryFrom<[u8; 4]> for ChunkType {
     type Error = &'static str;
     fn try_from(value: [u8; 4]) -> Result<Self, Self::Error> {
+        if !value.iter().all(|&c| c.is_ascii_alphabetic()) {
+            return Err("The bytes should between 65-90 and 97-122!");
+        }
         if value[2].is_ascii_lowercase() {
             return Err("The third type must be a Uppercase Alphabet");
         } else {
@@ -35,16 +38,15 @@ impl FromStr for ChunkType {
             return Err("Str's length should be 4!");
         }
         let bytes = s.as_bytes();
-        if bytes[2].is_ascii_lowercase() {
-            return Err("The third type must be a Uppercase Alphabet");
-        } else {
-            Ok(ChunkType {
-                ancillary: bytes[0],
-                private: bytes[1],
-                reserved: bytes[2],
-                safe_to_copy: bytes[3],
-            })
+        if !bytes.iter().all(|&c| c.is_ascii_alphabetic()) {
+            return Err("The str should be four alphabetic!");
         }
+        Ok(ChunkType {
+            ancillary: bytes[0],
+            private: bytes[1],
+            reserved: bytes[2],
+            safe_to_copy: bytes[3],
+        })
     }
 }
 
@@ -72,8 +74,6 @@ impl Display for ChunkType {
     }
 }
 
-
-
 impl ChunkType {
     fn to_string(&self) -> String {
         let bytes = &[
@@ -85,8 +85,33 @@ impl ChunkType {
         bytes.iter().map(|&b| b as char).collect()
     }
 
-    fn bytes(&self)->[u8;4]{
-      [self.ancillary,self.private,self.reserved,self.safe_to_copy]
+    fn bytes(&self) -> [u8; 4] {
+        [
+            self.ancillary,
+            self.private,
+            self.reserved,
+            self.safe_to_copy,
+        ]
+    }
+
+    fn is_critical(&self) -> bool {
+        self.ancillary.is_ascii_uppercase()
+    }
+
+    fn is_public(&self) -> bool {
+        self.private.is_ascii_uppercase()
+    }
+
+    fn is_reserved_bit_valid(&self) -> bool {
+        self.reserved.is_ascii_uppercase()
+    }
+
+    fn is_safe_to_copy(&self) -> bool {
+        self.safe_to_copy.is_ascii_lowercase()
+    }
+
+    fn is_valid(&self) -> bool {
+        self.is_reserved_bit_valid()
     }
 }
 
